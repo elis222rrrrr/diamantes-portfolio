@@ -262,13 +262,14 @@
     
     
     <h2 style="margin-top: 3rem;">Send Us Your Idea</h2>
-    <form name="contact" netlify enctype="multipart/form-data">
-      <input type="text" name="name" placeholder="Your Name" required />
-      <input type="email" name="email" placeholder="Your Email" required />
-      <textarea name="message" rows="5" placeholder="Describe your idea or request..." required></textarea>
-      <input type="file" name="attachment" />
-      <input type="submit" value="Send" />
-    </form>
+    
+<form action="https://formspree.io/f/yourFormID" method="POST">
+  <input type="text" name="name" placeholder="Your Name" required />
+  <input type="email" name="email" placeholder="Your Email" required />
+  <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+  <button type="submit">Send</button>
+</form>
+
   </section>
 
 
