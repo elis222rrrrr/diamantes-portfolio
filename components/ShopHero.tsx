@@ -160,7 +160,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
           </div>
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <div className="grid grid-cols-[1fr_1.3fr] items-center gap-2 lg:grid-cols-[0.85fr_1.15fr] lg:gap-3">
           {/* Left: headline / archive index */}
           <div className="relative z-10">
             {/* --font-orbitron, not font-mono: matches the homepage Hero's
@@ -213,7 +213,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
 
               translate-x nudges it further right so its silhouette clears
               the SERVICES nav link instead of crossing over it. */}
-          <div className="relative z-[60] mx-auto aspect-[16/11] w-full max-w-2xl pointer-events-none lg:-mr-16 lg:-mt-[14rem] lg:h-[33rem] lg:w-[46rem] lg:max-w-none lg:translate-x-16">
+          <div className="relative z-[60] -mr-3 aspect-[16/11] w-full translate-x-3 pointer-events-none lg:-mr-16 lg:-mt-[14rem] lg:h-[33rem] lg:w-[46rem] lg:max-w-none lg:translate-x-16">
             {/* Caption sits to the object's left, vertically centered —
                 matching the reference — rather than centered underneath. */}
             <p className="pointer-events-none absolute left-0 top-1/2 hidden w-32 -translate-y-1/2 font-mono text-[11px] leading-relaxed text-white/30 lg:block">
@@ -243,7 +243,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               INSIDE that same box would render at the box's own top
               (its only in-flow content) and overlap the image's top
               instead of actually sitting below it. */}
-          <p className="text-center font-mono text-[11px] text-white/30 lg:hidden">
+          <p className="col-span-2 text-center font-mono text-[11px] text-white/30 lg:hidden">
             [ EXPERIMENTAL MATERIALS / DIGITAL FABRICATION &amp; BEYOND ]
           </p>
         </div>
