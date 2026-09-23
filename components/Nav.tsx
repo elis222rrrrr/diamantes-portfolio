@@ -69,15 +69,23 @@ export default function Nav() {
         </div>
       </div>
 
-      {/* Mobile: condensed bar — full width, not capped to
+      {/* Phone only: condensed bar — full width, not capped to
           --content-width, so its top/bottom border and the divider
           between the two buttons reach the actual screen edge instead of
           stopping short on any viewport wider than the site's normal
           content column. Bracketed/numbered "system nav" text instead of
           icons, matching the Shop hero's terminal aesthetic — still
           bg-black/text-white (this site's own toggle-aware tokens), not
-          the reference's hardcoded black. */}
-      <nav className="flex items-center justify-between divide-x divide-white/10 border-y border-white/10 font-mono text-[11px] tracking-[0.15em] lg:hidden">
+          the reference's hardcoded black.
+
+          Switches at md (768px), not lg (1024px): plenty of real laptops
+          — especially with Windows display scaling above 100%, common for
+          readability — end up with an effective CSS viewport under
+          1024px, which left them stuck on this phone-only bar despite
+          being a full laptop screen. md still reliably excludes actual
+          phones (virtually all phone viewports are under 768px in
+          portrait) while including any laptop/tablet-landscape width. */}
+      <nav className="flex items-center justify-between divide-x divide-white/10 border-y border-white/10 font-mono text-[11px] tracking-[0.15em] md:hidden">
         <button
           type="button"
           onClick={() => setMenuOpen(true)}
@@ -98,13 +106,13 @@ export default function Nav() {
         </Link>
       </nav>
 
-      {/* Desktop: full row — same full-bleed reasoning as the mobile bar
-          above, so its column dividers and top/bottom border reach the
-          real screen edge on wide viewports instead of stopping at
-          --content-width with blank margin flanking them. The current
-          page's link gets a bracketed border box (matching the reference's
-          "[03_SHOP]"); the others stay plain numbered text. */}
-      <nav className="hidden grid-cols-5 divide-x divide-white/10 border-y border-white/10 font-mono text-xs tracking-[0.15em] lg:grid">
+      {/* Laptop and up (md, 768px+): full row — same full-bleed reasoning
+          as the phone bar above, so its column dividers and top/bottom
+          border reach the real screen edge on wide viewports instead of
+          stopping at --content-width with blank margin flanking them. The
+          current page's link gets a bracketed border box (matching the
+          reference's "[03_SHOP]"); the others stay plain numbered text. */}
+      <nav className="hidden grid-cols-5 divide-x divide-white/10 border-y border-white/10 font-mono text-xs tracking-[0.15em] md:grid">
         <button
           type="button"
           onClick={() => setMenuOpen(true)}
