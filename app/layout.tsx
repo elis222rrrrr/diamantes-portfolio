@@ -74,6 +74,12 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
+    // Proves ownership of the domain to Google Search Console — lets us
+    // request re-indexing on demand (e.g. after a favicon fix) instead of
+    // waiting for Google's own crawl schedule.
+    verification: {
+      google: "fvmclRr8xwbXgZ4uut9BWA6ga9M3R36kQUUpq18dzeI",
+    },
   };
 }
 
