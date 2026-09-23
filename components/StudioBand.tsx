@@ -17,7 +17,7 @@ export default function StudioBand() {
     >
       <div
         aria-hidden
-        className="relative min-h-[360px] overflow-hidden"
+        className="relative min-h-[240px] overflow-hidden lg:min-h-[360px]"
         style={{ backgroundColor: "#ffffff" }}
       >
         <Image
@@ -37,7 +37,12 @@ export default function StudioBand() {
         />
       </div>
 
-      <div className="flex flex-col justify-center gap-6 px-6 py-24 lg:px-12">
+      {/* py-24 is meant to vertically center this column against the image
+          beside it on desktop — at mobile widths, where the grid stacks
+          into two separate rows instead, that same top padding reads as a
+          large dead gap between the image and this text, so it only
+          applies from lg up; py-10 covers mobile/tablet instead. */}
+      <div className="flex flex-col justify-center gap-6 px-6 py-10 lg:px-12 lg:py-24">
         {/* Bracket-numbered eyebrow + tick divider — same archive-index
             language as the Hero's own [ 01 ]/[ 02 ] captions. */}
         <div>
