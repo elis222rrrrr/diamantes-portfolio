@@ -1,0 +1,8 @@
+import { buildOgImage, ogImageSize, ogImageContentType } from "@/lib/seo/og-image";
+
+export const size = ogImageSize;
+export const contentType = ogImageContentType;
+
+export default async function Image() {
+  return buildOgImage("REALITY, BY DESIGN.", "Fashion × Technology × Metamorphosis");
+}

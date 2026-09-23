@@ -1,0 +1,660 @@
+@import "tailwindcss";
+
+:root {
+  /* Dark theme — this site's actual, deliberate design; the default and the
+     only theme the admin panel ever uses. */
+  --background: #000000;
+  --foreground: #ffffff;
+
+  /* Focus-ring accent — the one non-grayscale color in the palette, used
+     consistently as the visible focus indicator on every interactive element. */
+  --focus-ring: #2c72ff;
+
+  /* Deliberate, scoped exception to the one-accent-color rule above — green
+     reads as "sustainable/eco" in a way blue doesn't, so the zero-waste
+     callout borrows it specifically. Not meant to spread beyond that one
+     use. Neon, not muted, per feedback — same shade as the user's own
+     hud_window_frame.svg reference. */
+  --eco-accent: #39ff14;
+
+  /* The site's one content-width constant — was previously duplicated as a
+     raw max-w-[1200px] arbitrary value in 6 files (Nav's two bars,
+     CookieConsent, Footer x2, Hero) alongside .section-container's own
+     max-width below, all meant to be the same measurement. One value, used
+     via max-w-[var(--content-width)] everywhere it applies now. */
+  --content-width: 1200px;
+
+  /* The one opacity tier ALL real text should use — including small
+     uppercase .tracked-label micro-copy ("2 colors", "(inactive)"), not just
+     body copy. Chosen at 60% for a safety margin above the 50% threshold
+     that actually clears WCAG AA's 4.5:1 for normal text on black (verified
+     via the real sRGB relative-luminance formula, not a naive opacity read).
+     A real Lighthouse audit caught a /30 micro-label at 2.44:1 — text size
+     doesn't lower the 4.5:1 bar; only WCAG's "large text" threshold
+     (≥18pt/14pt-bold) does, which no .tracked-label usage qualifies for.
+     Reserve lower opacities (/10-/40) for borders, decorative fills, and
+     non-text icons/graphics — genuinely governed by the 3:1 non-text
+     threshold, unlike a label that happens to be small. */
+  --text-muted: rgba(255, 255, 255, 0.6);
+
+  --nav-dot-color: rgba(255, 255, 255, 0.7);
+  /* Tag-chip surface — Footer's "Creative Technology Studio" and the Hero's
+     category tags each sit inside one of these. First pass used a solid
+     saturated blue pill, which read as a generic SaaS-badge color dropped
+     into a site that otherwise has exactly one restrained accent (the focus
+     ring) and one flourish (chrome, reserved for headline moments) — this
+     is the same hairline-border + near-invisible tint language already used
+     for every card/button/divider on the site, so a "tag" reads as a
+     variant of the site's existing chrome, not a new color introduced. */
+  --tag-chip-border: rgba(255, 255, 255, 0.18);
+  --tag-chip-bg: rgba(255, 255, 255, 0.04);
+  /* Hero atmosphere — a radial "stage light" behind the model. Same visual
+     role in both themes (draw the eye to center, add depth) but opposite
+     mechanics: black can't get darker at the edges, so this theme brightens
+     the center instead; white can't get brighter at the center, so the
+     light theme's override below darkens the edges (a vignette) instead. */
+  --hero-focus-glow: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.05) 30%,
+    transparent 62%
+  );
+  --hero-sparkle-color: rgba(255, 255, 255, 0.55);
+  /* Stops sampled directly from the Hero's rendered 3D chrome material
+     (components/HeroModel.tsx) — a luminance-sorted pixel sample of the
+     actual lit render, not hand-picked — so headline text and the 3D
+     object read as the same metal rather than two separate approximations. */
+  --chrome-gradient: linear-gradient(180deg, #fcfcfd, #e6ebef, #cbcfd4, #f8fafb, #6e6f71);
+  /* A separate, punchier gradient for the nav logo mark — it renders at
+     ~24×48px with thin, sparse strokes, where --chrome-gradient's 5 subtle
+     bands (tuned for the much bigger h1) compress into a few pixels each
+     and read as a flat average tone instead of a shine. Diagonal, 3 stops,
+     hard swing between them so a highlight streak is visible even that
+     small. */
+  --chrome-gradient-mark: linear-gradient(135deg, #ffffff 15%, #5c6169 50%, #ffffff 85%);
+  --card-gradient-mid: #0a0a0c;
+  --card-gradient-end: #050505;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-mono-face);
+}
+
+/*
+ * Visitor-facing light/dark toggle (components/ThemeToggle.tsx, set via a
+ * blocking inline script in app/layout.tsx to avoid a flash of the wrong
+ * theme). The public site's component tree is built entirely on Tailwind's
+ * own `white`/`black` color utilities (`bg-black`, `text-white`,
+ * `border-white/15`, etc.) as this project's de-facto background/foreground
+ * tokens, not a separate semantic layer — confirmed against the actual
+ * compiled CSS output that `.text-white`/`.bg-black` reference
+ * `var(--color-white)`/`var(--color-black)` rather than inlined literals.
+ * Redefining those two variables here re-themes every one of those ~200
+ * call sites across ~40 files with no changes to any of them, instead of a
+ * mechanical rewrite of every file.
+ *
+ * Scoped to [data-site-root] (the public site layout's own root element, not
+ * <html>) so the admin panel — which intentionally stays dark-only — is
+ * unaffected regardless of the visitor's stored theme choice.
+ *
+ * This is a faithful color inversion of the existing dark design, not a new
+ * light-mode art direction: same layout/contrast relationships, swapped
+ * canvas. A few purely decorative inline gradients (Hero's liquid-chrome
+ * blob, the grid overlay, teaser-card glows) are literal rgba(255,255,255,…)
+ * values in component style attributes, not Tailwind classes, so they don't
+ * invert — an accepted, disclosed limitation, not an oversight.
+ */
+html[data-theme="light"] [data-site-root] {
+  --background: #ffffff;
+  --foreground: #111111;
+  --text-muted: rgba(0, 0, 0, 0.6);
+  --nav-dot-color: rgba(0, 0, 0, 0.7);
+  --tag-chip-border: rgba(0, 0, 0, 0.18);
+  --tag-chip-bg: rgba(0, 0, 0, 0.04);
+  /* No vignette in light mode — the dark-theme version (a bright
+     highlight, see :root above) reads fine, but the equivalent dark-edge
+     version here just muddied the light background with a grey wash. */
+  --hero-focus-glow: none;
+  --hero-sparkle-color: rgba(17, 17, 17, 0.4);
+  --chrome-gradient: linear-gradient(180deg, #111111, #2b2f36, #4a5058, #111111, #6b7078);
+  --chrome-gradient-mark: linear-gradient(135deg, #0a0a0a 15%, #6b7078 50%, #0a0a0a 85%);
+  --card-gradient-mid: #f2f2f2;
+  --card-gradient-end: #fafafa;
+
+  --color-white: #111111;
+  --color-black: #ffffff;
+}
+
+/* Force-light scope for the Shop/Portfolio detail pages' product & commission
+   showcase — these present on a light surface always (product photography
+   reads best there, and this is the agreed showcase style for every product
+   and commission page), independent of the visitor's separate dark/light
+   site-theme toggle above. Redefines the exact same variables that toggle
+   sets, just scoped to a class instead of html[data-theme="light"], so every
+   existing bg-black/text-white/border-white/xx/.text-muted call site inside
+   inverts for free — no per-component color rewrites. */
+.force-light {
+  --background: #ffffff;
+  --foreground: #111111;
+  --text-muted: rgba(0, 0, 0, 0.6);
+  --card-gradient-mid: #f2f2f2;
+  --card-gradient-end: #fafafa;
+  --color-white: #111111;
+  --color-black: #ffffff;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* .force-light's mirror image — for a section that must read as a literal
+   black "terminal archive" surface (the Shop page's hero + file-style
+   product grid) regardless of the visitor's light/dark toggle, same way a
+   product photo stays on white regardless of it. Re-declares the plain
+   :root dark defaults as a scoped class instead of relying on the toggle
+   being off, so bg-black/text-white/border-white inside always resolve to
+   the real dark palette, never the inverted one. */
+.force-dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --card-gradient-mid: #0a0a0c;
+  --card-gradient-end: #050505;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@keyframes blink-cursor {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.blink-cursor {
+  animation: blink-cursor 1.1s step-end infinite;
+}
+
+/* A faint horizontal scanline drifting slowly down the Shop hero — the
+   "CRT monitor" detail from the terminal-archive brief. Deliberately slow
+   and near-invisible (opacity peaks well under the rest of the hero's own
+   chrome/text) so it reads as ambient texture, not a loading indicator. */
+@keyframes scanline {
+  0% {
+    top: -2%;
+  }
+  100% {
+    top: 102%;
+  }
+}
+.scanline {
+  animation: scanline 7s linear infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  /* Monospace everywhere, not just .tracked-label — the "system archive"
+     terminal lettering the nav and Shop hero use is now the site's actual
+     default typeface, not a special-case treatment for small labels. */
+  font-family: var(--font-mono), monospace;
+  overflow-x: hidden;
+}
+
+.tracked-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.checkout-field {
+  border-color: color-mix(in srgb, var(--foreground) 24%, transparent);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  color: var(--foreground);
+}
+
+.checkout-field::placeholder {
+  color: color-mix(in srgb, var(--foreground) 42%, transparent);
+}
+
+html[data-theme="light"] [data-site-root] .checkout-field {
+  border-color: rgba(17, 17, 17, 0.2);
+  background: rgba(17, 17, 17, 0.045);
+  color: #111111;
+}
+
+html[data-theme="light"] [data-site-root] .checkout-field::placeholder {
+  color: rgba(17, 17, 17, 0.45);
+}
+
+/* Small tag chip — Footer's "Creative Technology Studio" and each of the
+   Hero's category tags sit inside one of these. Hairline border + a bare
+   tint of the foreground, same restrained language as every card/button/
+   divider elsewhere on the site, with the little .nav-dot accent (already
+   used throughout via DotLine) doing the work a saturated fill did before —
+   a tag, not a new color introduced into an otherwise monochrome site. */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 0.25rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--tag-chip-border);
+  background: var(--tag-chip-bg);
+}
+
+.section-container {
+  margin-inline: auto;
+  max-width: var(--content-width);
+  padding-inline: 1.5rem;
+  padding-block: clamp(4.5rem, 8vw, 7rem);
+}
+@media (min-width: 64rem) {
+  .section-container {
+    padding-inline: 3rem;
+  }
+}
+
+/* font-family here, not just relying on body's own --font-mono: this is
+   every page's main heading (Portfolio/Services/Shop/Memberships on the
+   homepage, plus About/Portfolio/Services/Journal's own page headings),
+   and per feedback it should read as the same display face the Hero's
+   own "DIAMANTES DESIGNS" h1 uses (--font-orbitron), not the body copy's
+   monospace one — one consistent "big heading" identity across the
+   whole site instead of the Hero being the only place with this look. */
+.section-heading {
+  font-family: var(--font-orbitron), var(--font-mono), monospace;
+  font-size: 2.25rem;
+  font-weight: 300;
+  line-height: 0.95;
+}
+.contact-heading {
+  font-size: clamp(2rem, 8vw, 3rem);
+}
+@media (min-width: 64rem) {
+  .section-heading {
+    font-size: 3rem;
+  }
+}
+
+.nav-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--nav-dot-color);
+  flex-shrink: 0;
+}
+
+/* Opt-in blink for a .nav-dot — a class, not baked into .nav-dot itself,
+   since DotLine (this dot's usual home) is shared by the Hero, About, and
+   PortfolioHero sections, and only the Hero's dots were asked to flash;
+   the others stay static. */
+@keyframes dot-flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.dot-flash {
+  animation: dot-flash 1.6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes sparkle-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.hero-sparkle {
+  color: var(--hero-sparkle-color);
+  animation: sparkle-pulse 3.6s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* A slow orbit for the Hero's decorative reticle ring around the 3D model —
+   deliberately long (40s) so it reads as ambient drift, not something
+   actively spinning that competes with the model's own float. */
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 40s linear infinite;
+}
+
+.hero-viewport-graphic {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    );
+  background-position: center;
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse at center, black 0%, black 38%, transparent 78%);
+  opacity: 0.45;
+}
+
+.hero-viewport-target {
+  border: 1px solid color-mix(in srgb, var(--focus-ring) 28%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--foreground) 5%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+
+.hero-viewport-target::before,
+.hero-viewport-target::after {
+  position: absolute;
+  content: "";
+  background: color-mix(in srgb, var(--focus-ring) 35%, transparent);
+}
+
+.hero-viewport-target::before {
+  left: 50%;
+  top: -1.5rem;
+  bottom: -1.5rem;
+  width: 1px;
+}
+
+.hero-viewport-target::after {
+  top: 50%;
+  right: -1.5rem;
+  left: -1.5rem;
+  height: 1px;
+}
+
+/* Ticker strip (Footer's "running code" line, AnnouncementBar's promo
+   line) — a continuous horizontal scroll rather than a typewriter effect,
+   so it needs no JS/state: N identical copies of the content translated by
+   exactly -(100/N)% (one copy's own width, regardless of N), the standard
+   seamless-marquee trick — at that point the next copy is exactly where
+   the previous one started, so the loop point is invisible. --ticker-
+   copies must match however many copies the component actually renders;
+   too few copies for a short piece of content leaves the tiled strip
+   narrower than the viewport, which makes the loop-reset visibly snap
+   instead of staying hidden off-screen. Respects prefers-reduced-motion
+   for free via the global `*` override above. */
+@keyframes terminal-scroll {
+  to {
+    transform: translateX(calc(-100% / var(--ticker-copies, 2)));
+  }
+}
+
+.terminal-ticker {
+  animation: terminal-scroll 32s linear infinite;
+}
+
+.chrome-text {
+  background: var(--chrome-gradient);
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Same technique as .chrome-text, but for .tracked-label-scale text (the
+   category/tag chips) rather than the h1 — --chrome-gradient's 5 subtle
+   bands are tuned for that much bigger size and read as a flat tone at
+   ~0.65rem, the same problem the nav logo mark hit, so this reuses that
+   fix's higher-contrast, hard-swinging gradient instead. */
+.chrome-text-fine {
+  background: var(--chrome-gradient-mark);
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* The nav logo mark (public/logo-mark.png) is a flat black silhouette on
+   transparent — used as a mask instead of an <img> so it can be filled
+   with the same chrome gradient as .chrome-text (the mark, the h1, and the
+   About pull-quote all read as the same metal), rather than the flat
+   single-tone + invert()-per-theme treatment it had before. */
+.chrome-logo-mark {
+  background: currentColor;
+  -webkit-mask-image: url("/logo-mark.png");
+  mask-image: url("/logo-mark.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* Shared card gradient — each card supplies its own --accent via inline
+   style; the base/end stops stay consistent everywhere instead of each
+   component hand-picking its own, and swap for the light theme above. */
+.card-gradient {
+  background: linear-gradient(
+    160deg,
+    var(--accent, #202426) 0%,
+    var(--card-gradient-mid) 55%,
+    var(--card-gradient-end) 100%
+  );
+}
+
+/* Focus-visible ring, used in place of removing the outline with nothing to
+   replace it — meets the 3:1 non-text-contrast requirement against black. */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Journal article body — shared by the Tiptap editor (components/journal/editor)
+   and the rendered public article (components/journal/ArticleContent.tsx), so
+   what the admin sees while writing matches what a visitor reads. */
+.journal-prose {
+  color: var(--foreground);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.journal-prose > * + * {
+  margin-top: 1.25em;
+}
+.journal-prose h1 {
+  font-size: 2rem;
+  font-weight: 300;
+}
+.journal-prose h2 {
+  font-size: 1.6rem;
+  font-weight: 300;
+}
+.journal-prose h3 {
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+.journal-prose h4,
+.journal-prose h5,
+.journal-prose h6 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.journal-prose ul,
+.journal-prose ol {
+  padding-left: 1.5em;
+}
+.journal-prose ul {
+  list-style: disc;
+}
+.journal-prose ol {
+  list-style: decimal;
+}
+.journal-prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--text-muted);
+}
+.journal-prose blockquote {
+  border-left: 2px solid var(--focus-ring);
+  padding-left: 1.25em;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.journal-prose img {
+  max-width: 100%;
+  height: auto;
+}
+.journal-prose hr {
+  border: none;
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
+}
+.journal-prose pre {
+  background: var(--code-bg, rgba(128, 128, 128, 0.08));
+  padding: 1em;
+  overflow-x: auto;
+  font-family: var(--font-mono-face), monospace;
+  font-size: 0.85em;
+}
+.journal-prose code {
+  font-family: var(--font-mono-face), monospace;
+  font-size: 0.9em;
+}
+.journal-prose table {
+  /* display:block (rather than the default table) is what makes
+     overflow-x actually scroll instead of squeezing columns unreadably
+     narrow on a phone — the same escape hatch .journal-prose pre already
+     has above. Rows/cells inside keep their normal table layout; only the
+     outer box becomes a scroll container. Author-inserted tables (see
+     RichTextEditor's Table extension) can have any number of columns, so
+     this has to hold regardless of content width. */
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+.journal-prose th,
+.journal-prose td {
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+.journal-prose th {
+  font-weight: 600;
+}
+
+.journal-callout {
+  border-left: 3px solid var(--focus-ring);
+  background: rgba(128, 128, 128, 0.06);
+  padding: 1em 1.25em;
+}
+.journal-callout[data-variant="tip"] {
+  border-left-color: #63d9a8;
+}
+.journal-callout[data-variant="warning"] {
+  border-left-color: #ffcf5c;
+}
+.journal-callout > *:first-child {
+  margin-top: 0;
+}
+.journal-callout > *:last-child {
+  margin-bottom: 0;
+}
+
+.journal-button-cta {
+  display: inline-block;
+  border: 1px solid var(--text-muted);
+  padding: 0.6em 1.5em;
+  font-size: 0.85em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  transition: border-color 0.15s;
+}
+.journal-button-cta:hover {
+  border-color: var(--foreground);
+}
+
+.journal-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.5rem;
+}
+.journal-gallery-img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+/* Scroll-driven reading-progress bar (components/journal/ReadingProgressBar.tsx). */
+.journal-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--focus-ring);
+  z-index: 80;
+  transform-origin: left;
+  transform: scaleX(var(--journal-progress, 0));
+  width: 100%;
+}
