@@ -1,12 +1,11 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Suspense, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import StudioEnvironment from "@/components/three/StudioEnvironment";
 import { useCenteredModel } from "@/components/three/useCenteredModel";
-import { useBfcacheRemountKey } from "@/components/three/useBfcacheRemountKey";
 
 // Direction only — the actual distance is computed per-model in Model below
 // (from its true bounding sphere), then applied along this direction. Mostly
@@ -22,38 +21,28 @@ const FIT_MARGIN = 1.4;
 
 function Model({ url, tint }: { url: string; tint?: string }) {
   const { model, radius } = useCenteredModel(url, tint);
-  const camera = useThree((state) => state.camera);
-  const controls = useThree((state) => state.controls) as {
-    update: () => void;
-    minDistance: number;
-    maxDistance: number;
-  } | null;
-  const size = useThree((state) => state.size);
-  // R3F hands out a fresh `size` object on every resize-observer callback,
-  // including ones that fire with the SAME width/height — confirmed
-  // directly: an earlier version of this effect that depended on `size`
-  // without this guard reset the camera (fighting OrbitControls) on every
-  // one of those, reading as the model jumping/flickering while being
-  // dragged. Tracking the last-FIT numeric size (and radius, so a
-  // genuinely new model still refits even at an unchanged container size)
-  // and bailing out unless either actually changed keeps the refit limited
-  // to real resizes — including a container reused, not remounted, across
-  // a cached navigation and coming back at a different real size, which is
-  // the original bug this was meant to fix — without re-firing on noise.
+  // Checked (and corrected, if needed) on every frame rather than in an
+  // effect keyed on `size`/`radius`: an effect only runs when React
+  // re-renders this component, but Next.js App Router's back/forward
+  // navigation can restore this exact component instance without ever
+  // re-rendering it — the camera stays fit to whatever it was left at
+  // before navigating away, which for a different scroll/layout position
+  // reads as the model suddenly huge/misfit. Reading size/camera/controls
+  // directly off useFrame's own state (rather than subscribing via
+  // useThree, which was the earlier approach) means this check runs
+  // regardless of whether React ever re-renders this component at all.
+  // Still guarded by the same numeric (not object-identity) comparison as
+  // before, so it stays a no-op every other frame and can't reintroduce
+  // the drag flicker that motivated that guard in the first place.
   const lastFit = useRef({ width: 0, height: 0, radius: -1 });
 
-  // Positions the camera along CAMERA_DIRECTION at whatever distance fits
-  // this model's real size — replaces drei's <Bounds>, which computes its
-  // own (imprecise, non-skin-aware) box internally and can't be handed a
-  // precomputed one. controls.update() resyncs OrbitControls' internal
-  // spherical state to the new camera position (it otherwise only reads
-  // camera.position once, on mount).
-  /* eslint-disable react-hooks/immutability -- this whole effect mutates
-     `controls`, an imperative three.js object (not React state); disabling
-     the block rather than a single line since the exact line the plugin
-     anchors its diagnostic to shifted each time this effect's body changed
-     shape. */
-  useEffect(() => {
+  useFrame((state) => {
+    const { camera, size } = state;
+    const controls = state.controls as {
+      update: () => void;
+      minDistance: number;
+      maxDistance: number;
+    } | null;
     if (
       lastFit.current.width === size.width &&
       lastFit.current.height === size.height &&
@@ -63,6 +52,12 @@ function Model({ url, tint }: { url: string; tint?: string }) {
     }
     lastFit.current = { width: size.width, height: size.height, radius };
 
+    // Positions the camera along CAMERA_DIRECTION at whatever distance fits
+    // this model's real size — replaces drei's <Bounds>, which computes its
+    // own (imprecise, non-skin-aware) box internally and can't be handed a
+    // precomputed one. controls.update() resyncs OrbitControls' internal
+    // spherical state to the new camera position (it otherwise only reads
+    // camera.position once, on mount).
     const perspective = camera as THREE.PerspectiveCamera;
     const verticalFov = (perspective.fov * Math.PI) / 180;
     const distance = (radius * FIT_MARGIN) / Math.sin(verticalFov / 2);
@@ -76,8 +71,7 @@ function Model({ url, tint }: { url: string; tint?: string }) {
       controls.maxDistance = distance * 3;
       controls.update();
     }
-  }, [camera, controls, radius, size]);
-  /* eslint-enable react-hooks/immutability */
+  });
 
   return <primitive object={model} />;
 }
@@ -97,14 +91,9 @@ type Props = {
  * loading-transition choreography, since the files this is meant for are
  * tiny (a few KB to a couple hundred KB) and load close to instantly. */
 export default function PortfolioModelViewer({ url, tint }: Props) {
-  const bfcacheKey = useBfcacheRemountKey();
   return (
     <div className="aspect-square w-full border border-white/10">
       <Canvas
-        // Forces a full remount after a browser back/forward-cache restore
-        // — see useBfcacheRemountKey's comment for why that navigation path
-        // needs this and ordinary resizes/re-renders don't.
-        key={bfcacheKey}
         // Just an initial placeholder — Model repositions the camera along
         // CAMERA_DIRECTION once the real model size is known.
         camera={{ position: [0, 1, 2], fov: 35 }}
