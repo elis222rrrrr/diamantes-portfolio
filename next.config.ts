@@ -63,7 +63,14 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   // Minimal, self-contained production output for the Docker image — only
   // the files actually needed at runtime, not the full node_modules tree.
-  output: "standalone",
+  // Vercel sets its own VERCEL env var during build (not just at runtime);
+  // skip "standalone" there, since it's a self-hosting-only setting and
+  // Vercel's docs explicitly warn it can cause files that a serverless
+  // function reads at runtime (e.g. app/icon.tsx's readFileSync of
+  // public/logo-mark.png) to go missing from that function's bundle —
+  // confirmed directly: the icon route returned an empty 200 in
+  // production but worked fine locally, where this never applied.
+  output: process.env.VERCEL ? undefined : "standalone",
   images: {
     remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
     // Next 16 requires an explicit allowlist (default is [75] only) — 90 is
