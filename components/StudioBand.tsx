@@ -58,7 +58,7 @@ export default function StudioBand() {
 
         <h2 className="section-heading leading-tight">Design</h2>
 
-        <p className="max-w-md text-sm leading-relaxed text-muted">
+        <p className="max-w-md text-xs leading-relaxed text-muted sm:text-sm">
           Diamantes 3Designs is a creative technology studio in Greece, working across 3D fashion,
           digital fabrication, CAD and product design, from a full 3D-printed fashion collection to
           sculptural jewelry cast in sterling silver.
