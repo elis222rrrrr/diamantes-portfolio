@@ -149,7 +149,12 @@ export default function ProductCard({ product, index }: { product: Product; inde
         </div>
       </Link>
 
-      <div className="mt-4 flex items-center justify-between gap-3 px-1 py-1">
+      {/* flex-wrap as a safety net, not the primary fix: gap-2 is tuned to
+          fit the worst real case (3 swatches) on one line, but a future
+          product with more variants shouldn't be able to push this row
+          past the card's edge the way gap-3 just did — better to wrap to
+          a second line than overflow off-screen. */}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2.5 px-1 py-1">
         {hasVariants ? (
           <div className="flex gap-1 sm:gap-1.5">
             {product.variants.map((variant) => {
@@ -169,7 +174,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
                   aria-label={variant.color}
                   title={soldOut ? `${variant.color} (sold out)` : variant.color}
                   style={{ backgroundColor: hex }}
-                  className={`focus-ring relative h-6 w-6 shrink-0 rounded-full border transition sm:h-8 sm:w-8 ${
+                  className={`focus-ring relative h-5 w-5 shrink-0 rounded-full border transition sm:h-8 sm:w-8 ${
                     selected ? "border-[var(--focus-ring)]" : "border-white/25"
                   } ${soldOut ? "cursor-not-allowed opacity-30" : "cursor-pointer hover:border-white/50"}`}
                 >
@@ -179,7 +184,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
                       className="absolute inset-0 flex items-center justify-center"
                       style={{ color: isLightSwatch(hex) ? "#161616" : "#f5f5f3" }}
                     >
-                      <Check size={11} strokeWidth={3} />
+                      <Check size={9} strokeWidth={3} />
                     </span>
                   )}
                 </button>
