@@ -23,7 +23,7 @@ export default function ProjectGrid({ projects }: Props) {
   const modelUrls = projects.map((p) => p.modelUrl).filter((url): url is string => Boolean(url));
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
       <PortfolioModelPreloader urls={modelUrls} />
       {projects.map((project) => (
         <Link
