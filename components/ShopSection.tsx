@@ -67,7 +67,7 @@ export default function ShopSection({ as: Heading = "h2", products }: Props) {
         {/* Real current listings — this used to be a single decorative
             gradient panel with no products shown at all. */}
         {products.length > 0 && (
-          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-6 lg:grid-cols-3">
             {products.map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}

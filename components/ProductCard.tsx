@@ -119,7 +119,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
             bg-black is this site's semantic page-surface token: black in
             the default dark theme, white once toggled light — same
             treatment as the product/portfolio pages' own galleries. */}
-        <div className="relative mt-2 aspect-square w-full overflow-hidden bg-black p-6">
+        <div className="relative mt-3 aspect-square w-full overflow-hidden bg-black p-6">
           {displayImage ? (
             <Image
               src={displayImage}
@@ -131,7 +131,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
           ) : null}
         </div>
 
-        <div className="px-1 pb-1 pt-4">
+        <div className="px-1 pb-1 pt-5">
           <div className="flex items-baseline justify-between gap-3">
             <p className="text-base font-semibold">{product.name}</p>
             {objectType && <span className="tracked-label shrink-0 text-muted">{objectType}</span>}
