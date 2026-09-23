@@ -145,7 +145,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
       <div className="relative pb-1 pt-2 lg:pb-1 lg:pt-3">
         {/* System status row — z-10 so it stays readable over the object,
             which at this size/angle can swing up into this corner. */}
-        <div className="relative z-10 mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[11px] leading-relaxed text-white/50">
+        <div className="relative z-10 mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[9px] leading-relaxed text-white/50 sm:text-[11px]">
           <div>
             <p>USER: GUEST</p>
             <p>&gt; ACCESS: SHOP</p>
@@ -169,7 +169,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
                 across Hero/Shop/homepage instead of Shop's title being
                 in the body's plain monospace on its own. */}
             <h1
-              className="text-[3.75rem] leading-[0.95] tracking-tight sm:text-[5rem] lg:text-[6rem]"
+              className="text-[2.75rem] leading-[0.95] tracking-tight sm:text-[5rem] lg:text-[6rem]"
               style={{ fontFamily: "var(--font-orbitron)" }}
             >
               SHOP
@@ -177,12 +177,12 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
                 _
               </span>
             </h1>
-            <p className="mt-1 font-mono text-sm tracking-[0.15em] text-white/60">
+            <p className="mt-1 font-mono text-[10px] tracking-[0.1em] text-white/60 sm:text-sm sm:tracking-[0.15em]">
               OBJECTS FOR AN UNDEFINED FUTURE
               <span style={{ color: "var(--focus-ring)" }}>_</span>
             </p>
 
-            <div className="mt-1 pt-1 font-mono text-[11px] leading-relaxed text-white/40">
+            <div className="mt-1 pt-1 font-mono text-[9px] leading-relaxed text-white/40 sm:text-[11px]">
               <p>ARCHIVE / {lastUpdate.getFullYear()}</p>
               <p>
                 {String(objectCount).padStart(2, "0")} OBJECT{objectCount === 1 ? "" : "S"}{" "}
@@ -213,7 +213,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
 
               translate-x nudges it further right so its silhouette clears
               the SERVICES nav link instead of crossing over it. */}
-          <div className="relative z-[60] -mr-3 -mt-[28rem] aspect-[16/11] w-full translate-x-3 pointer-events-none lg:-mr-16 lg:-mt-[14rem] lg:h-[33rem] lg:w-[46rem] lg:max-w-none lg:translate-x-16">
+          <div className="relative z-[60] -mr-3 -mt-[27rem] aspect-[16/11] w-full translate-x-3 pointer-events-none lg:-mr-16 lg:-mt-[14rem] lg:h-[33rem] lg:w-[46rem] lg:max-w-none lg:translate-x-16">
             {/* Caption sits to the object's left, vertically centered —
                 matching the reference — rather than centered underneath. */}
             <p className="pointer-events-none absolute left-0 top-1/2 hidden w-32 -translate-y-1/2 font-mono text-[11px] leading-relaxed text-white/30 lg:block">
@@ -243,7 +243,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               INSIDE that same box would render at the box's own top
               (its only in-flow content) and overlap the image's top
               instead of actually sitting below it. */}
-          <p className="col-span-2 text-center font-mono text-[11px] text-white/30 lg:hidden">
+          <p className="col-span-2 text-center font-mono text-[9px] text-white/30 sm:text-[11px] lg:hidden">
             [ EXPERIMENTAL MATERIALS / DIGITAL FABRICATION &amp; BEYOND ]
           </p>
         </div>
