@@ -149,15 +149,20 @@ export default function ProductCard({ product, index }: { product: Product; inde
         </div>
       </Link>
 
-      {/* flex-wrap as a safety net, not the primary fix: gap-2 is tuned to
-          fit the worst real case (3 swatches) on one line, but a future
-          product with more variants shouldn't be able to push this row
-          past the card's edge the way gap-3 just did — better to wrap to
-          a second line than overflow off-screen. */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2.5 px-1 py-1">
-        {hasVariants ? (
-          <div className="flex gap-1 sm:gap-1.5">
-            {product.variants.map((variant) => {
+      {/* A fixed-width swatch slot, not justify-between, is what actually
+          keeps the "Add to cart" button's position consistent across
+          cards — a product with 0 swatches vs. 2 vs. 3 otherwise shifts
+          how the row's content is distributed, so the button landed at a
+          different spot on every other card. Reserving room for the
+          largest real case (3 swatches) up front means the button always
+          starts right after it, everywhere, whether that space is empty,
+          half-full, or full. flex-wrap stays as a safety net: a future
+          product with even more variants degrades to two lines instead
+          of overflowing the card the way an unbounded gap-3 once did. */}
+      <div className="mt-4 flex flex-wrap items-center gap-2.5 px-1 py-1">
+        <div className="flex w-16 shrink-0 gap-1 sm:w-28 sm:gap-1.5">
+          {hasVariants &&
+            product.variants.map((variant) => {
               const soldOut = !variant.isActive || variant.stock === 0;
               const selected = variant.id === selectedVariantId;
               const hex = swatchColorFor(variant.color);
@@ -190,10 +195,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
                 </button>
               );
             })}
-          </div>
-        ) : (
-          <span />
-        )}
+        </div>
 
         <CartActionButton added={added} disabled={quickAddDisabled} onClick={handleQuickAdd} small>
           {added ? "Added" : "Add to cart"}
