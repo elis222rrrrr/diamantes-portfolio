@@ -62,7 +62,7 @@ export default function ContactPanel({ as: Heading = "h2" }: Props) {
       {/* No pill/border shape — a dot, icon + label, then a closing dot,
           no connecting line (removed per feedback). Centered (per
           feedback), not left-aligned like the rest of the panel. */}
-      <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:gap-10">
+      <div className="flex items-center justify-center gap-4 sm:gap-10">
         <Link
           href="/contact/email"
           className="focus-ring group flex items-center gap-3 whitespace-nowrap text-white transition hover:text-[var(--focus-ring)]"
