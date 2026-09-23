@@ -18,16 +18,25 @@ export default function CartActionButton({ added, disabled, onClick, children, s
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`focus-ring relative flex w-fit items-center text-foreground transition hover:text-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-foreground ${
-        small ? "gap-3 px-3 py-2" : "gap-5 px-5 py-3"
+      className={`focus-ring relative flex w-fit shrink-0 items-center text-foreground transition hover:text-[var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-foreground ${
+        small ? "gap-1.5 px-2 py-1.5 sm:gap-3 sm:px-3 sm:py-2" : "gap-5 px-5 py-3"
       }`}
     >
       <CornerBrackets small={small} />
-      <span className={`tracked-label font-bold ${small ? "text-[10px]" : ""}`}>{children}</span>
+      {/* whitespace-nowrap: this button sits in a tight card footer beside
+          color swatches (ProductCard) — without it, "Add to cart" wrapped
+          onto 2-3 lines whenever the swatches left it too little width,
+          instead of the button just staying one line at its natural
+          (now much smaller) size. */}
+      <span
+        className={`tracked-label whitespace-nowrap font-bold ${small ? "text-[9px] sm:text-[10px]" : ""}`}
+      >
+        {children}
+      </span>
       {added ? (
-        <Check size={small ? 12 : 16} strokeWidth={2.5} aria-hidden="true" />
+        <Check size={small ? 10 : 16} strokeWidth={2.5} aria-hidden="true" className="shrink-0" />
       ) : (
-        <Plus size={small ? 12 : 16} strokeWidth={2.5} aria-hidden="true" />
+        <Plus size={small ? 10 : 16} strokeWidth={2.5} aria-hidden="true" className="shrink-0" />
       )}
     </button>
   );

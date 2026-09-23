@@ -149,9 +149,9 @@ export default function ProductCard({ product, index }: { product: Product; inde
         </div>
       </Link>
 
-      <div className="mt-4 flex items-center justify-between gap-3 px-1 py-1">
+      <div className="mt-4 flex items-center justify-between gap-1.5 px-1 py-1 sm:gap-3">
         {hasVariants ? (
-          <div className="flex gap-1.5">
+          <div className="flex gap-1 sm:gap-1.5">
             {product.variants.map((variant) => {
               const soldOut = !variant.isActive || variant.stock === 0;
               const selected = variant.id === selectedVariantId;
@@ -169,7 +169,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
                   aria-label={variant.color}
                   title={soldOut ? `${variant.color} (sold out)` : variant.color}
                   style={{ backgroundColor: hex }}
-                  className={`focus-ring relative h-8 w-8 shrink-0 rounded-full border transition ${
+                  className={`focus-ring relative h-6 w-6 shrink-0 rounded-full border transition sm:h-8 sm:w-8 ${
                     selected ? "border-[var(--focus-ring)]" : "border-white/25"
                   } ${soldOut ? "cursor-not-allowed opacity-30" : "cursor-pointer hover:border-white/50"}`}
                 >
@@ -179,7 +179,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
                       className="absolute inset-0 flex items-center justify-center"
                       style={{ color: isLightSwatch(hex) ? "#161616" : "#f5f5f3" }}
                     >
-                      <Check size={13} strokeWidth={3} />
+                      <Check size={11} strokeWidth={3} />
                     </span>
                   )}
                 </button>
