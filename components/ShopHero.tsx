@@ -145,7 +145,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
       <div className="relative pb-1 pt-2 lg:pb-1 lg:pt-3">
         {/* System status row — z-10 so it stays readable over the object,
             which at this size/angle can swing up into this corner. */}
-        <div className="relative z-10 mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[9px] leading-relaxed text-white/50 sm:text-[11px]">
+        <div className="relative z-10 mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[7px] leading-relaxed text-white/50 sm:text-[11px]">
           <div>
             <p>USER: GUEST</p>
             <p>&gt; ACCESS: SHOP</p>
@@ -182,7 +182,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               <span style={{ color: "var(--focus-ring)" }}>_</span>
             </p>
 
-            <div className="mt-1 pt-1 font-mono text-[9px] leading-relaxed text-white/40 sm:text-[11px]">
+            <div className="mt-1 pt-1 font-mono text-[7px] leading-relaxed text-white/40 sm:text-[11px]">
               <p>ARCHIVE / {lastUpdate.getFullYear()}</p>
               <p>
                 {String(objectCount).padStart(2, "0")} OBJECT{objectCount === 1 ? "" : "S"}{" "}
