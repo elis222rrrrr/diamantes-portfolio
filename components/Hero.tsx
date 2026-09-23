@@ -242,13 +242,20 @@ export default function Hero({ tagline, categories, featuredService, projectCoun
           tagline — the page's actual content), right sidebar (a real
           product preview + a process caption + a CTA). Side columns are
           lg+-only decoration; center content alone carries the page at
-          narrower widths, same as before this reference pass. */}
-      {/* lg:pt-40 (well past the absolute status row's own ~123px height,
-          computed from its 5 text-[11px]/leading-relaxed lines + top-6
-          offset) clears it for every column — the left/right sidebars'
-          own content starts flush at this grid's top edge, so without this
-          they'd render directly underneath/overlapping that status text. */}
-      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] flex-1 grid-cols-[76px_minmax(0,1fr)_76px] gap-2 px-3 py-8 sm:grid-cols-[120px_minmax(0,1fr)_120px] sm:gap-4 sm:px-6 lg:grid-cols-[240px_1fr_240px] lg:gap-10 lg:px-20 lg:pb-12 lg:pt-40">
+          narrower widths — actually enforced below via grid-cols-1 +
+          hidden on both sidebars, not just a comment: at 76-120px wide
+          these held real multi-word labels ("DIGITAL FABRICATION",
+          "ENGINEERING") that had no room to sit beside the center column
+          at all and just overlapped it.
+
+          pt-24 sm:pt-40 (well past the absolute status row's own ~123px
+          height, computed from its 5 text-[11px]/leading-relaxed lines +
+          top-6 offset) clears it — that status block jumps from
+          text-[8px] to text-[11px] at the same sm breakpoint, so the
+          bigger clearance has to start there too, not at lg, or sm/tablet
+          widths render the grid's content directly underneath/overlapping
+          that status text. */}
+      <div className="relative z-10 mx-auto grid w-full max-w-[1440px] flex-1 grid-cols-1 gap-2 px-3 pb-8 pt-24 sm:gap-4 sm:px-6 sm:pt-40 lg:grid-cols-[240px_1fr_240px] lg:gap-10 lg:px-20 lg:pb-12">
         {/* LEFT SIDEBAR — fades in after the top status row (see its own
             comment above), before the right sidebar, for that same
             sequential "booting up" feel. */}
@@ -257,7 +264,7 @@ export default function Hero({ tagline, categories, featuredService, projectCoun
           animate="visible"
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.25 }}
-          className="flex flex-col justify-between"
+          className="hidden flex-col justify-between lg:flex"
         >
           <div className="font-mono text-[11px] leading-relaxed text-white/50">
             <p style={{ color: "var(--focus-ring)" }}>[ 01 ]</p>
@@ -462,7 +469,7 @@ export default function Hero({ tagline, categories, featuredService, projectCoun
           animate="visible"
           variants={fadeInUp}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
-          className="flex flex-col justify-between"
+          className="hidden flex-col justify-between lg:flex"
         >
           {featuredService && (
             <div className="translate-y-8">
