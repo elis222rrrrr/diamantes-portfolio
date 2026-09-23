@@ -6,6 +6,7 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import StudioEnvironment from "@/components/three/StudioEnvironment";
 import { useCenteredModel } from "@/components/three/useCenteredModel";
+import { useBfcacheRemountKey } from "@/components/three/useBfcacheRemountKey";
 
 // Direction only — the actual distance is computed per-model in Model below
 // (from its true bounding sphere), then applied along this direction. Mostly
@@ -96,9 +97,14 @@ type Props = {
  * loading-transition choreography, since the files this is meant for are
  * tiny (a few KB to a couple hundred KB) and load close to instantly. */
 export default function PortfolioModelViewer({ url, tint }: Props) {
+  const bfcacheKey = useBfcacheRemountKey();
   return (
     <div className="aspect-square w-full border border-white/10">
       <Canvas
+        // Forces a full remount after a browser back/forward-cache restore
+        // — see useBfcacheRemountKey's comment for why that navigation path
+        // needs this and ordinary resizes/re-renders don't.
+        key={bfcacheKey}
         // Just an initial placeholder — Model repositions the camera along
         // CAMERA_DIRECTION once the real model size is known.
         camera={{ position: [0, 1, 2], fov: 35 }}

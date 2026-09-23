@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import StudioEnvironment from "@/components/three/StudioEnvironment";
 import { useCenteredModel } from "@/components/three/useCenteredModel";
+import { useBfcacheRemountKey } from "@/components/three/useBfcacheRemountKey";
 
 // Same viewing direction as PortfolioModelViewer's detail-page viewer, for a
 // consistent look between the grid card and the detail page — see that
@@ -96,8 +97,13 @@ type Props = {
  * interactive viewer), there's no drag-to-rotate/scroll-to-zoom — a grid
  * card is glanced at, not manipulated, so this just spins on its own. */
 export default function ProjectCardModelPreview({ url, tint }: Props) {
+  const bfcacheKey = useBfcacheRemountKey();
   return (
     <Canvas
+      // Forces a full remount after a browser back/forward-cache restore —
+      // see useBfcacheRemountKey's comment for why that navigation path
+      // needs this and ordinary resizes/re-renders don't.
+      key={bfcacheKey}
       // Explicit absolute-fill, matching the <Image fill> sibling in
       // ProjectGrid.tsx — without this, the canvas relied on the R3F
       // default sizing, which didn't reliably center within this grid
