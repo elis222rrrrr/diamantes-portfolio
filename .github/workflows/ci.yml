@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # Dummy values so build-time env checks pass — no real secrets needed
+      # for typecheck/lint/build, since nothing in this job talks to a real
+      # database or third-party API.
+      DATABASE_URL: "postgresql://user:password@localhost:5432/dummy"
+      SITE_URL: "https://diamantes3designs.com"
+      RESEND_API_KEY: "re_dummy"
+      RESEND_FROM_EMAIL: "dummy@example.com"
+      CLOUDINARY_CLOUD_NAME: "dummy"
+      CLOUDINARY_API_KEY: "dummy"
+      CLOUDINARY_API_SECRET: "dummy"
+      STRIPE_SECRET_KEY: "sk_test_dummy"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
+
+      - name: Lint
+        run: npx eslint .
+
+      - name: Format check
+        run: npx prettier --check .
+
+      - name: Build
+        run: npm run build
