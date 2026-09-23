@@ -149,7 +149,7 @@ export default function ProductCard({ product, index }: { product: Product; inde
         </div>
       </Link>
 
-      <div className="mt-4 flex items-center justify-between gap-1.5 px-1 py-1 sm:gap-3">
+      <div className="mt-4 flex items-center justify-between gap-3 px-1 py-1">
         {hasVariants ? (
           <div className="flex gap-1 sm:gap-1.5">
             {product.variants.map((variant) => {
