@@ -233,13 +233,19 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               sizes="(min-width: 1024px) 900px, 90vw"
               priority
             />
-
-            {/* Mobile-only caption, back to centered underneath since
-                there's no room for it beside the object at that width. */}
-            <p className="mt-2 text-center font-mono text-[11px] text-white/30 lg:hidden">
-              [ EXPERIMENTAL MATERIALS / DIGITAL FABRICATION &amp; BEYOND ]
-            </p>
           </div>
+
+          {/* Mobile-only caption, centered underneath the object since
+              there's no room for it beside the object at that width — a
+              genuine sibling of the "stage" box above, not a child of it:
+              the object <Image> is `fill` (position: absolute), which
+              takes it out of normal document flow entirely, so a caption
+              INSIDE that same box would render at the box's own top
+              (its only in-flow content) and overlap the image's top
+              instead of actually sitting below it. */}
+          <p className="text-center font-mono text-[11px] text-white/30 lg:hidden">
+            [ EXPERIMENTAL MATERIALS / DIGITAL FABRICATION &amp; BEYOND ]
+          </p>
         </div>
       </div>
     </div>
