@@ -169,7 +169,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-[0.9fr_1.1fr] items-center gap-3">
+        <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] items-center gap-3">
           {/* Left: headline / archive index */}
           <div className="relative z-10">
             {/* --font-orbitron, not font-mono: matches the homepage Hero's
@@ -178,7 +178,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
                 across Hero/Shop/homepage instead of Shop's title being
                 in the body's plain monospace on its own. */}
             <h1
-              className="text-[clamp(2.75rem,7vw,6rem)] leading-[0.95] tracking-tight"
+              className="text-[clamp(3.5rem,8vw,6rem)] leading-[0.95] tracking-tight"
               style={{ fontFamily: "var(--font-orbitron)" }}
             >
               SHOP
@@ -234,7 +234,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               33rem — aspect-[16/11] alone now derives it at every width,
               consistent with how the width itself scales. */}
           <div
-            className="relative z-[60] aspect-[16/11] w-[clamp(180px,42vw,46rem)] pointer-events-none"
+            className="relative z-[60] aspect-[16/11] w-[clamp(200px,45vw,46rem)] pointer-events-none"
             style={{
               marginRight: "clamp(-64px, calc(-12px - (100vw - 390px) * 0.0495), -12px)",
               marginTop: "clamp(-224px, calc(-16px - (100vw - 390px) * 0.198), -16px)",
