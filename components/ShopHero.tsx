@@ -223,22 +223,45 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               translate-x nudges it further right so its silhouette clears
               the SERVICES nav link instead of crossing over it.
 
-              Width and all three offsets are fluid (calc()/clamp(), not
-              base/lg breakpoint jumps) — the same "no untested middle
-              ground" reasoning as the type above, anchored to the two
-              values already confirmed to look right: -16px top margin /
-              12px right margin / 12px translate at a 390px phone, scaling
-              linearly out to -224px / -64px / 64px by 1440px and beyond
-              (clamped there, so it never overshoots past that on bigger
-              screens). Height is no longer pinned to a separate lg-only
-              33rem — aspect-[16/11] alone now derives it at every width,
-              consistent with how the width itself scales. */}
+              Width/margins/translate are fluid (calc()/clamp() custom
+              properties, not plain base/lg breakpoint jumps) below lg, so
+              there's no untested middle ground the way discrete
+              breakpoints left one before — but at lg and up this reverts
+              to the *exact* original fixed desktop values (not a
+              continuation of the same curve): the curve's own width
+              growth rate is deliberately capped well below what it'd take
+              to reach the original 46rem by 1440px, because reaching it
+              that fast made the object wide enough at ~700-900px to grow
+              into the SYSTEM_STATUS text on the right. A plain lg:
+              Tailwind class can't win against these inline custom
+              properties (inline declarations always outrank stylesheet
+              rules, regardless of breakpoint), so the override has to
+              happen at the custom-property level instead, via the
+              <style> block below — the actual margin/width/transform
+              properties just consume whichever value currently wins. */}
+          <style>{`
+            .shop-hero-stage {
+              --stage-w: clamp(200px, 32vw, 46rem);
+              --stage-mr: clamp(-64px, calc(-12px - (100vw - 390px) * 0.0495), -12px);
+              --stage-mt: clamp(-270px, calc(-16px - (100vw - 390px) * 1), -16px);
+              --stage-tx: clamp(4px, calc(4px + (100vw - 390px) * 0.0495), 64px);
+            }
+            @media (min-width: 1024px) {
+              .shop-hero-stage {
+                --stage-w: 46rem;
+                --stage-mr: -4rem;
+                --stage-mt: -14rem;
+                --stage-tx: 4rem;
+              }
+            }
+          `}</style>
           <div
-            className="relative z-[60] aspect-[16/11] w-[clamp(200px,45vw,46rem)] pointer-events-none"
+            className="shop-hero-stage relative z-[60] aspect-[16/11] pointer-events-none lg:h-[33rem]"
             style={{
-              marginRight: "clamp(-64px, calc(-12px - (100vw - 390px) * 0.0495), -12px)",
-              marginTop: "clamp(-270px, calc(-16px - (100vw - 390px) * 1), -16px)",
-              transform: "translateX(clamp(4px, calc(4px + (100vw - 390px) * 0.0495), 64px))",
+              width: "var(--stage-w)",
+              marginRight: "var(--stage-mr)",
+              marginTop: "var(--stage-mt)",
+              transform: "translateX(var(--stage-tx))",
             }}
           >
             {/* Caption sits to the object's left, vertically centered —
