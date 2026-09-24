@@ -154,7 +154,13 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
             endpoint. Scaling continuously with viewport width means every
             width in between is *also* tuned, not just the two or three
             breakpoints someone happened to test. */}
-        <div className="relative z-10 mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[clamp(7px,1.3vw,11px)] leading-relaxed text-white/50">
+        {/* Both status blocks stay on the left now, side by side — moved
+            off the right side entirely (per feedback) since no amount of
+            z-index/outline styling on SYSTEM_STATUS actually solved it
+            crossing the object at some widths without either shrinking
+            the object or moving the text off the object's side of the
+            page for good. */}
+        <div className="relative z-10 mb-1 flex flex-wrap items-start gap-8 font-mono text-[clamp(7px,1.3vw,11px)] leading-relaxed text-white/50">
           <div>
             <p>USER: GUEST</p>
             <p>&gt; ACCESS: SHOP</p>
