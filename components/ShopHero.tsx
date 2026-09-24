@@ -154,7 +154,26 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
             endpoint. Scaling continuously with viewport width means every
             width in between is *also* tuned, not just the two or three
             breakpoints someone happened to test. */}
-        <div className="relative z-10 mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[clamp(7px,1.3vw,11px)] leading-relaxed text-white/50">
+        {/* z-[70] (above the object's z-[60]) + a hard outline: the
+            object's own width grows fast enough to reach under this text
+            at some widths — per feedback, fixed by keeping the object at
+            its original size and fixing the text instead. z-[70] alone
+            genuinely puts the text on top (confirmed via
+            elementFromPoint, not just visually assumed), but the text's
+            own fill (white/50, semi-transparent by design everywhere
+            else) still washed out against the object's brightest chrome
+            highlights — a soft blurred shadow didn't fix that either,
+            since it darkens the area *around* each letter without
+            changing the letter's own see-through fill. A crisp 4-
+            direction solid outline (no blur) gives every letter a real
+            silhouette regardless of what's behind it, at any opacity. */}
+        <div
+          className="relative z-[70] mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[clamp(7px,1.3vw,11px)] leading-relaxed text-white/50"
+          style={{
+            textShadow:
+              "0.5px 0.5px 0 #000, -0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000",
+          }}
+        >
           <div>
             <p>USER: GUEST</p>
             <p>&gt; ACCESS: SHOP</p>
@@ -241,7 +260,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               properties just consume whichever value currently wins. */}
           <style>{`
             .shop-hero-stage {
-              --stage-w: clamp(200px, 32vw, 46rem);
+              --stage-w: clamp(200px, 45vw, 46rem);
               --stage-mr: clamp(-64px, calc(-12px - (100vw - 390px) * 0.0495), -12px);
               --stage-mt: clamp(-270px, calc(-16px - (100vw - 390px) * 1), -16px);
               --stage-tx: clamp(4px, calc(4px + (100vw - 390px) * 0.0495), 64px);
