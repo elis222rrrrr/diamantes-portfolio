@@ -145,14 +145,23 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
       <div className="relative pb-1 pt-2 lg:pb-1 lg:pt-3">
         {/* System status row — z-10 so it stays readable over the object,
             which at this size/angle can swing up into this corner. */}
-        <div className="relative z-10 mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[7px] leading-relaxed text-white/50 sm:text-[11px]">
+        {/* Fluid (clamp()-based) type from here down instead of jumping
+            between fixed base/sm/lg sizes: those discrete jumps left an
+            awkward middle ground (tablet-ish widths, ~600-900px) where the
+            grid/margins were still using values tuned for a ~390px phone
+            while text had already jumped up to its "sm" size, causing the
+            object to overlap status text that fit fine at either true
+            endpoint. Scaling continuously with viewport width means every
+            width in between is *also* tuned, not just the two or three
+            breakpoints someone happened to test. */}
+        <div className="relative z-10 mb-1 flex flex-wrap items-start justify-between gap-8 font-mono text-[clamp(7px,1.3vw,11px)] leading-relaxed text-white/50">
           <div>
             <p>USER: GUEST</p>
             <p>&gt; ACCESS: SHOP</p>
             <p>&gt; STATUS: ONLINE</p>
             <p>&gt; TIME: {now ? formatClock(now) : "————.——.—— --:--:--"}</p>
           </div>
-          <div className="sm:-mr-4 sm:-mt-6 lg:-mr-14">
+          <div>
             <p className="text-white/70">SYSTEM_STATUS:</p>
             <p>&gt; SHOP ONLINE</p>
             <p>&gt; INVENTORY: ACTIVE</p>
@@ -160,7 +169,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-[1fr_1.3fr] items-center gap-2 lg:grid-cols-[0.85fr_1.15fr] lg:gap-3">
+        <div className="grid grid-cols-[0.9fr_1.1fr] items-center gap-3">
           {/* Left: headline / archive index */}
           <div className="relative z-10">
             {/* --font-orbitron, not font-mono: matches the homepage Hero's
@@ -169,7 +178,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
                 across Hero/Shop/homepage instead of Shop's title being
                 in the body's plain monospace on its own. */}
             <h1
-              className="text-[2.75rem] leading-[0.95] tracking-tight sm:text-[5rem] lg:text-[6rem]"
+              className="text-[clamp(2.75rem,7vw,6rem)] leading-[0.95] tracking-tight"
               style={{ fontFamily: "var(--font-orbitron)" }}
             >
               SHOP
@@ -177,12 +186,12 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
                 _
               </span>
             </h1>
-            <p className="mt-1 font-mono text-[10px] tracking-[0.1em] text-white/60 sm:text-sm sm:tracking-[0.15em]">
+            <p className="mt-1 font-mono text-[clamp(0.625rem,1.6vw,0.875rem)] tracking-[0.12em] text-white/60">
               OBJECTS FOR AN UNDEFINED FUTURE
               <span style={{ color: "var(--focus-ring)" }}>_</span>
             </p>
 
-            <div className="mt-1 pt-1 font-mono text-[7px] leading-relaxed text-white/40 sm:text-[11px]">
+            <div className="mt-1 pt-1 font-mono text-[clamp(7px,1.3vw,11px)] leading-relaxed text-white/40">
               <p>ARCHIVE / {lastUpdate.getFullYear()}</p>
               <p>
                 {String(objectCount).padStart(2, "0")} OBJECT{objectCount === 1 ? "" : "S"}{" "}
@@ -212,8 +221,26 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               clicks on the nav links it visually overlaps.
 
               translate-x nudges it further right so its silhouette clears
-              the SERVICES nav link instead of crossing over it. */}
-          <div className="relative z-[60] -mr-3 -mt-4 aspect-[16/11] w-full translate-x-3 pointer-events-none lg:-mr-16 lg:-mt-[14rem] lg:h-[33rem] lg:w-[46rem] lg:max-w-none lg:translate-x-16">
+              the SERVICES nav link instead of crossing over it.
+
+              Width and all three offsets are fluid (calc()/clamp(), not
+              base/lg breakpoint jumps) — the same "no untested middle
+              ground" reasoning as the type above, anchored to the two
+              values already confirmed to look right: -16px top margin /
+              12px right margin / 12px translate at a 390px phone, scaling
+              linearly out to -224px / -64px / 64px by 1440px and beyond
+              (clamped there, so it never overshoots past that on bigger
+              screens). Height is no longer pinned to a separate lg-only
+              33rem — aspect-[16/11] alone now derives it at every width,
+              consistent with how the width itself scales. */}
+          <div
+            className="relative z-[60] aspect-[16/11] w-[clamp(180px,42vw,46rem)] pointer-events-none"
+            style={{
+              marginRight: "clamp(-64px, calc(-12px - (100vw - 390px) * 0.0495), -12px)",
+              marginTop: "clamp(-224px, calc(-16px - (100vw - 390px) * 0.198), -16px)",
+              transform: "translateX(clamp(4px, calc(4px + (100vw - 390px) * 0.0495), 64px))",
+            }}
+          >
             {/* Caption sits to the object's left, vertically centered —
                 matching the reference — rather than centered underneath. */}
             <p className="pointer-events-none absolute left-0 top-1/2 hidden w-32 -translate-y-1/2 font-mono text-[11px] leading-relaxed text-white/30 lg:block">
@@ -243,7 +270,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
               INSIDE that same box would render at the box's own top
               (its only in-flow content) and overlap the image's top
               instead of actually sitting below it. */}
-          <p className="col-span-2 text-center font-mono text-[9px] text-white/30 sm:text-[11px] lg:hidden">
+          <p className="col-span-2 text-center font-mono text-[clamp(9px,1.3vw,11px)] text-white/30 lg:hidden">
             [ EXPERIMENTAL MATERIALS / DIGITAL FABRICATION &amp; BEYOND ]
           </p>
         </div>
