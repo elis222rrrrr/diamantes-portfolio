@@ -237,7 +237,7 @@ export default function ShopHero({ objectCount, lastUpdate }: Props) {
             className="relative z-[60] aspect-[16/11] w-[clamp(200px,45vw,46rem)] pointer-events-none"
             style={{
               marginRight: "clamp(-64px, calc(-12px - (100vw - 390px) * 0.0495), -12px)",
-              marginTop: "clamp(-224px, calc(-16px - (100vw - 390px) * 0.198), -16px)",
+              marginTop: "clamp(-224px, calc(-16px - (100vw - 390px) * 0.6), -16px)",
               transform: "translateX(clamp(4px, calc(4px + (100vw - 390px) * 0.0495), 64px))",
             }}
           >
