@@ -414,7 +414,7 @@ export default function Hero({ tagline, categories, featuredService, projectCoun
             <br />
             <span className="whitespace-nowrap">
               <CutWord text="DESIGNS" cuts={[0, 5]} squares={[0]} />
-              <sup className="ml-1 align-super text-[10px] tracking-normal text-white/50 sm:text-base lg:text-xl">
+              <sup className="relative top-1 ml-1 align-super text-[10px] tracking-normal text-white/50 sm:top-0 sm:text-base lg:text-xl">
                 &reg;
               </sup>
             </span>
