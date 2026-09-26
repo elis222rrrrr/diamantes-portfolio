@@ -8,7 +8,16 @@
  *
  * Shared between the homepage Hero's "DIAMANTES"/"DESIGNS" title and
  * ContactPanel's "START A PROJECT / TODAY." heading — originally a local
- * function inside Hero.tsx, extracted here once a second caller needed it. */
+ * function inside Hero.tsx, extracted here once a second caller needed it.
+ *
+ * All cut/square overlays are hidden below sm: percentage-based sizing
+ * keeps their PROPORTION to each glyph constant regardless of font size,
+ * but at a mobile heading's much smaller size the same proportional cut
+ * removes enough of a letter's identifying strokes to read as a
+ * different letter entirely (an "A" with a lowCut + lowSquare read as an
+ * "R" at mobile size, per feedback) — legible plain letters at small
+ * sizes, the stylized "distressed" look once there's enough room for it
+ * to still read correctly. */
 export default function CutWord({
   text,
   cuts = [],
@@ -40,28 +49,28 @@ export default function CutWord({
           {cuts.includes(i) && (
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-x-0"
+              className="pointer-events-none absolute inset-x-0 hidden sm:block"
               style={{ top: "42%", height: "16%", background: "var(--background)" }}
             />
           )}
           {lowCuts.includes(i) && (
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-x-0"
+              className="pointer-events-none absolute inset-x-0 hidden sm:block"
               style={{ top: "46%", height: "16%", background: "var(--background)" }}
             />
           )}
           {smallCuts.includes(i) && (
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-x-0"
+              className="pointer-events-none absolute inset-x-0 hidden sm:block"
               style={{ top: "20%", height: "8%", background: "var(--background)" }}
             />
           )}
           {bottomCuts.includes(i) && (
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-x-0"
+              className="pointer-events-none absolute inset-x-0 hidden sm:block"
               style={{ top: "74%", height: "8%", background: "var(--background)" }}
             />
           )}
@@ -76,14 +85,14 @@ export default function CutWord({
           {squares.includes(i) && (
             <span
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#000000]"
+              className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 bg-[#000000] sm:block"
               style={{ width: "16%", height: "16%" }}
             />
           )}
           {lowSquares.includes(i) && (
             <span
               aria-hidden
-              className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#000000]"
+              className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 -translate-y-1/2 bg-[#000000] sm:block"
               style={{ top: "54%", width: "60%", height: "16%" }}
             />
           )}
