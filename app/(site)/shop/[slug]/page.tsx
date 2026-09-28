@@ -57,9 +57,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         ]}
       />
       <ProductSchema product={product} />
-      <section className="force-light">
-        <ProductDetail product={product} outOfStock={outOfStock} />
-      </section>
+      <ProductDetail product={product} outOfStock={outOfStock} />
     </>
   );
 }

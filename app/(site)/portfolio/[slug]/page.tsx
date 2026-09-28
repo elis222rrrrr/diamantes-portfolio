@@ -80,7 +80,7 @@ export default async function PortfolioProjectPage({
         ]}
       />
       <CreativeWorkSchema project={project} />
-      <section className="force-light">
+      <section>
         <div className="section-container">
           <Link
             href="/portfolio"
