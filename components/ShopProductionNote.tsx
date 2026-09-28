@@ -100,7 +100,17 @@ export default function ShopProductionNote() {
           MADE TO ORDER / ONLY WHAT IS NEEDED
         </p>
       </div>
-      <div className="mt-14 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Same caption, plain (not absolutely-positioned into the SVG's
+          gap) below lg — that gap is a fixed % of the container's own
+          width, which only leaves enough room for this nowrap text once
+          the container itself is wide enough (roughly lg+); below that,
+          per feedback, it just wasn't showing at all rather than
+          overflowing, so it needs a genuinely different treatment, not a
+          smaller version of the same one. */}
+      <p className="mt-3 text-center font-mono text-[11px] text-muted lg:hidden">
+        MADE TO ORDER / ONLY WHAT IS NEEDED
+      </p>
+      <div className="mt-14 grid grid-cols-2 gap-x-6 gap-y-10 sm:gap-x-10 sm:gap-y-12 lg:grid-cols-4">
         {STEPS.map((step) => (
           <div key={step.n}>
             <p className="tracked-label text-muted">
