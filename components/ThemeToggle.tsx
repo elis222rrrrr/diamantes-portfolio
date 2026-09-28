@@ -26,6 +26,13 @@ export default function ThemeToggle() {
     const next = theme === "light" ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", next);
     window.localStorage.setItem(THEME_STORAGE_KEY, next);
+    // Also a cookie, not just localStorage: the server can read this
+    // during rendering (localStorage is client-only), so the very first
+    // byte of HTML on the next visit already has the right data-theme —
+    // no client-side correction after the fact, which is what caused a
+    // visible flash between themes on load for a returning visitor with
+    // a saved "dark" preference (see app/layout.tsx).
+    document.cookie = `${THEME_STORAGE_KEY}=${next}; path=/; max-age=31536000; samesite=lax`;
     window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
   }
 

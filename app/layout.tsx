@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Geist, JetBrains_Mono, Michroma, Orbitron } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import Script from "next/script";
@@ -89,6 +90,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSiteSettings();
+  // Read directly from the cookie ThemeToggle now also writes (not just
+  // localStorage, which the server can't see) — the initial HTML already
+  // carries the right data-theme for a returning visitor, instead of
+  // always assuming "light" and correcting client-side a moment later,
+  // which is what caused a visible flash between themes on load.
+  const cookieStore = await cookies();
+  const savedTheme = cookieStore.get("d3d-theme")?.value;
+  const initialTheme = savedTheme === "dark" ? "dark" : "light";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -112,13 +121,12 @@ export default async function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      // data-theme is set by the theme-init script below, before hydration —
-      // React never renders this attribute itself, so it always "mismatches"
-      // what SSR produced. This is the standard, documented way to tell
-      // React that's expected for a specific, known attribute rather than a
-      // real bug (see the effect it has on the console-noise: without this,
-      // the invalid-nesting fix below still leaves a separate, cosmetic
-      // hydration warning for this attribute alone).
+      data-theme={initialTheme}
+      // suppressHydrationWarning still needed: the theme-sync script below
+      // can still correct this attribute client-side (the one case the
+      // cookie above doesn't cover — see its own comment), which React
+      // would otherwise flag as a hydration mismatch on this specific
+      // attribute even though it's expected/handled.
       suppressHydrationWarning
       className={`${geistSans.variable} ${jetbrainsMono.variable} ${michroma.variable} ${orbitron.variable} h-full antialiased`}
     >
@@ -129,17 +137,24 @@ export default async function RootLayout({
             here, not between <html> and <body>. Placing it outside <body>
             (as this previously did) is invalid HTML — <script> can't be a
             direct child of <html> — and reproduced a hydration-mismatch
-            error on every single page. Sets data-theme on <html> before
-            first paint, so there's no flash of the wrong theme. "d3d-theme"
-            here must match THEME_STORAGE_KEY in components/ThemeToggle.tsx.
-            The theme only ever affects markup inside [data-site-root] (the
-            public site layout) — see app/globals.css — so this runs
-            harmlessly on admin pages too. Defaults to light regardless of OS
-            preference — a stored choice (from ThemeToggle) always wins, but
-            a first-time visitor always starts on light rather than whatever
-            their OS happens to prefer. */}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {`(function(){try{var s=localStorage.getItem('d3d-theme');document.documentElement.setAttribute('data-theme',s||'light');}catch(e){}})();`}
+            error on every single page.
+
+            The <html data-theme> attribute above (read from the cookie
+            ThemeToggle writes) already carries the right value for a
+            returning visitor in the very first byte of HTML — this script
+            is now just a defensive correction for the one case that
+            cookie can't cover: a visitor whose browser blocks/clears
+            cookies but still has the older localStorage value (from
+            before this cookie was added, or from a browser configured
+            that way generally). It only touches the DOM when the two
+            genuinely disagree, so it's a no-op read-and-compare on every
+            normal load, not an unconditional overwrite racing the SSR'd
+            value — that unconditional overwrite is exactly what caused a
+            visible flash between themes on load for anyone with a saved
+            "dark" preference, since it always ran a moment *after* the
+            server-rendered "light" default had already painted. */}
+        <Script id="theme-sync" strategy="beforeInteractive">
+          {`(function(){try{var s=localStorage.getItem('d3d-theme');if(s&&s!==document.documentElement.getAttribute('data-theme')){document.documentElement.setAttribute('data-theme',s);}}catch(e){}})();`}
         </Script>
         <MotionConfig reducedMotion="user">{children}</MotionConfig>
         <script
