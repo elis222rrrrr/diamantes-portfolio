@@ -12,11 +12,49 @@ import { Printer, Sparkles, ScanSearch, PackageOpen } from "lucide-react";
 // there's no cross-element alignment left to get wrong. The one accepted
 // trade-off: at very wide viewports the crosshair sits at a fixed fraction
 // of the container width rather than pinned to its literal right edge.
+/** Mobile-only: just the flag + text, in a viewBox cropped tightly around
+ * them (reusing the exact same path/text coordinates as the full graphic
+ * below, not redrawn) instead of the full 1200-wide composition. That
+ * full graphic is genuinely width-bound at a phone's narrow viewport —
+ * `preserveAspectRatio`'s default "meet" scales it down until the whole
+ * 1200-unit-wide shape fits, which per feedback read as "way too small,
+ * and no bigger for a taller box" (true: with width already the binding
+ * constraint, more height only adds empty letterbox space above/below,
+ * never bigger content) — and the trailing decorative line/hatch/ring/
+ * crosshair, correctly rendered but tiny at that scale, read as "cut"
+ * rather than recognizable. Cropping to just the flag means its own
+ * aspect ratio is what the box has to match, so it actually fills the
+ * available height instead of being squeezed by the full-width line's
+ * much wider aspect. */
+function ZeroWasteGraphicMobile() {
+  return (
+    <svg
+      viewBox="0 0 280 80"
+      className="h-20 w-auto"
+      style={{ color: "var(--eco-accent)" }}
+      aria-hidden="true"
+    >
+      <path d="M14 10 H230 L262 40 L230 70 H14 Q0 70 0 56 V24 Q0 10 14 10 Z" fill="currentColor" />
+      <text
+        x="26"
+        y="47"
+        fill="#ffffff"
+        fontSize="20"
+        fontWeight="800"
+        letterSpacing="0.04em"
+        fontFamily="var(--font-mono), monospace"
+      >
+        ZERO WASTE
+      </text>
+    </svg>
+  );
+}
+
 function ZeroWasteGraphic() {
   return (
     <svg
       viewBox="0 0 1200 120"
-      className="h-24 w-full sm:h-28"
+      className="hidden h-24 w-full sm:block sm:h-28"
       style={{ color: "var(--eco-accent)" }}
       aria-hidden="true"
     >
@@ -81,6 +119,9 @@ export default function ShopProductionNote() {
       {/* Bleeds past .section-container's own side padding (1.5rem, 3rem
           at lg — see globals.css) so the graphic reaches wider than the
           rest of the page's content column on both sides. */}
+      <div className="sm:hidden">
+        <ZeroWasteGraphicMobile />
+      </div>
       <div className="relative -mx-6 lg:-mx-12">
         <ZeroWasteGraphic />
         {/* Real HTML text over the svg, not baked into it — keeps it
