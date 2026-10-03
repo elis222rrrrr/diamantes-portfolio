@@ -5,8 +5,9 @@ import { findOrderById } from "@/lib/shop/repository";
 import { formatPriceCents } from "@/lib/shop/format";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
 import MarkShippedForm from "./MarkShippedForm";
-import { markShippedAction, cancelOrderAction } from "../actions";
+import { markShippedAction, markInProductionAction, cancelOrderAction } from "../actions";
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireRole(["OWNER", "ADMIN"]);
@@ -16,7 +17,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   if (!order) notFound();
 
   const canCancel = order.status === "PENDING";
-  const canShip = order.status === "PAID";
+  const canStartProduction = order.status === "PAID";
+  const canShip = order.status === "PAID" || order.status === "IN_PRODUCTION";
   const shipping = order.shippingAddress as {
     name?: string;
     address?: Record<string, string> | string;
@@ -83,6 +85,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
+      {order.status === "IN_PRODUCTION" && (
+        <p className="mb-8 text-sm text-muted">In production — customer has been notified.</p>
+      )}
+
       {order.status === "FULFILLED" && order.trackingNumber && (
         <p className="mb-8 text-sm text-muted">
           Shipped — tracking number <span className="text-white">{order.trackingNumber}</span>
@@ -90,6 +96,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       )}
 
       <div className="flex flex-col gap-6 sm:flex-row">
+        {canStartProduction && (
+          <form action={markInProductionAction.bind(null, order.id)}>
+            <Button type="submit" className="w-fit px-4 py-2">
+              Mark as in production
+            </Button>
+          </form>
+        )}
+
         {canShip && <MarkShippedForm action={markShippedAction.bind(null, order.id)} />}
 
         {canCancel && (

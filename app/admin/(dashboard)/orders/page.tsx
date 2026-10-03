@@ -8,6 +8,7 @@ import Card from "@/components/ui/Card";
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "Pending",
   PAID: "Paid",
+  IN_PRODUCTION: "In production",
   FULFILLED: "Shipped",
   CANCELLED: "Cancelled",
   REFUND_NEEDED: "Refund needed",

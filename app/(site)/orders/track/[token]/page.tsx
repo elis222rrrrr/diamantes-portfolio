@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { CheckCircle2, Clock, Package, AlertTriangle, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, Package, Hammer, AlertTriangle, XCircle } from "lucide-react";
 import { findOrderByTrackingToken } from "@/lib/shop/repository";
 import { formatPriceCents } from "@/lib/shop/format";
 import { buildMetadata } from "@/lib/seo/metadata";
@@ -24,6 +24,11 @@ const STATUS_COPY = {
     icon: CheckCircle2,
     label: "Payment confirmed",
     detail: "Your order is confirmed and being prepared.",
+  },
+  IN_PRODUCTION: {
+    icon: Hammer,
+    label: "In production",
+    detail: "The studio has started making your piece.",
   },
   FULFILLED: {
     icon: Package,

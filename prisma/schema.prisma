@@ -226,6 +226,10 @@ model ProductVariant {
 enum OrderStatus {
   PENDING
   PAID
+  // Set once the studio starts actually making the piece, between
+  // payment (PAID) and shipping (FULFILLED) — a customer-facing "it's
+  // being made" update, not just a change to internal fulfillment state.
+  IN_PRODUCTION
   FULFILLED
   CANCELLED
   REFUND_NEEDED

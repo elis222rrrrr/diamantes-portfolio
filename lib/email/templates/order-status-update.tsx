@@ -1,5 +1,5 @@
 type Props = {
-  status: "FULFILLED" | "CANCELLED";
+  status: "IN_PRODUCTION" | "FULFILLED" | "CANCELLED";
   trackingNumber?: string;
   trackUrl: string;
 };
@@ -27,19 +27,28 @@ const button: React.CSSProperties = {
   fontSize: "13px",
 };
 
+const COPY = {
+  IN_PRODUCTION: {
+    heading: "Production has started",
+    body: "The studio has started making your piece.",
+  },
+  FULFILLED: {
+    heading: "Your order has shipped",
+    body: "Your order is on its way.",
+  },
+  CANCELLED: {
+    heading: "Your order was cancelled",
+    body: "Your order has been cancelled. Please contact us if you have any questions.",
+  },
+} as const;
+
 export default function OrderStatusUpdateEmail({ status, trackingNumber, trackUrl }: Props) {
-  const fulfilled = status === "FULFILLED";
+  const { heading, body } = COPY[status];
 
   return (
     <div style={wrapper}>
-      <p style={{ fontSize: "22px", fontWeight: 300, marginBottom: "16px" }}>
-        {fulfilled ? "Your order has shipped" : "Your order was cancelled"}
-      </p>
-      <p style={detail}>
-        {fulfilled
-          ? "Your order is on its way."
-          : "Your order has been cancelled. Please contact us if you have any questions."}
-      </p>
+      <p style={{ fontSize: "22px", fontWeight: 300, marginBottom: "16px" }}>{heading}</p>
+      <p style={detail}>{body}</p>
       {trackingNumber && <p style={detail}>Tracking number: {trackingNumber}</p>}
       <a href={trackUrl} style={button}>
         View order status

@@ -90,10 +90,14 @@ const processors: Record<JobType, Processor> = {
 
   "email.orderStatusUpdate": async (raw) => {
     const payload = jobPayloadSchemas["email.orderStatusUpdate"].parse(raw);
+    const subjects = {
+      IN_PRODUCTION: "Production has started on your order",
+      FULFILLED: "Your order has shipped",
+      CANCELLED: "Your order was cancelled",
+    };
     await emailSender().send({
       to: payload.email,
-      subject:
-        payload.status === "FULFILLED" ? "Your order has shipped" : "Your order was cancelled",
+      subject: subjects[payload.status],
       react: OrderStatusUpdateEmail({
         status: payload.status,
         trackingNumber: payload.trackingNumber,

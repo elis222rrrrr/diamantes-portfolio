@@ -41,7 +41,7 @@ export type DomainEvent =
       type: "order.status.changed";
       email: string;
       trackingToken: string;
-      status: "FULFILLED" | "CANCELLED";
+      status: "IN_PRODUCTION" | "FULFILLED" | "CANCELLED";
       trackingNumber?: string;
     };
 

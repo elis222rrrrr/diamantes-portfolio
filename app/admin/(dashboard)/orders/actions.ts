@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireRoleForAction } from "@/lib/auth/session";
-import { markOrderShipped, markOrderCancelled } from "@/lib/shop/repository";
+import { markOrderShipped, markOrderCancelled, markOrderInProduction } from "@/lib/shop/repository";
 import { findOrderById } from "@/lib/shop/repository";
 import { recordAudit } from "@/lib/audit/repository";
 import { publishEvent } from "@/lib/events";
@@ -54,6 +54,25 @@ export async function markShippedAction(
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/orders");
   return null;
+}
+
+export async function markInProductionAction(orderId: string): Promise<void> {
+  const user = await requireRoleForAction([...MANAGE_ROLES]);
+  const updated = await markOrderInProduction(orderId);
+  if (!updated) return;
+  const order = await findOrderById(orderId);
+  if (order?.customerEmail) {
+    await publishEvent({
+      type: "order.status.changed",
+      email: order.customerEmail,
+      trackingToken: order.trackingToken,
+      status: "IN_PRODUCTION",
+    });
+    after(() => runJobWorker());
+  }
+  await recordAudit({ actorId: user.id, action: "order.in_production", targetId: orderId });
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin/orders");
 }
 
 export async function cancelOrderAction(orderId: string): Promise<void> {

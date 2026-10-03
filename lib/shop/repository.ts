@@ -317,10 +317,22 @@ export async function markOrderPaid(
   });
 }
 
-export function markOrderShipped(orderId: string, trackingNumber: string) {
+export function markOrderInProduction(orderId: string) {
   return prisma.order
     .updateMany({
       where: { id: orderId, status: OrderStatus.PAID },
+      data: { status: OrderStatus.IN_PRODUCTION },
+    })
+    .then((result) => result.count > 0);
+}
+
+export function markOrderShipped(orderId: string, trackingNumber: string) {
+  return prisma.order
+    .updateMany({
+      // Allows shipping directly from PAID too, not just IN_PRODUCTION —
+      // that intermediate status is a customer-facing nicety the admin
+      // can send, not a required step every order has to pass through.
+      where: { id: orderId, status: { in: [OrderStatus.PAID, OrderStatus.IN_PRODUCTION] } },
       data: { trackingNumber, shippedAt: new Date(), status: OrderStatus.FULFILLED },
     })
     .then((result) => result.count > 0);

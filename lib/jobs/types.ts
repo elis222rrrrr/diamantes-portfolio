@@ -45,7 +45,7 @@ const orderConfirmationPayload = z.object({
 const orderStatusUpdatePayload = z.object({
   email: z.string().email(),
   trackingToken: z.string(),
-  status: z.enum(["FULFILLED", "CANCELLED"]),
+  status: z.enum(["IN_PRODUCTION", "FULFILLED", "CANCELLED"]),
   trackingNumber: z.string().optional(),
 });
 
