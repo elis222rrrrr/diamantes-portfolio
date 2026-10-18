@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/prisma";
+import { cachePublicContent, invalidatePublicContent } from "@/lib/cache/public-content";
 
 export function listActive() {
   return prisma.service.findMany({
@@ -8,6 +9,9 @@ export function listActive() {
     orderBy: { order: "asc" },
   });
 }
+
+/** listActive() for the homepage, cached — see lib/cache/public-content.ts. */
+export const listActiveCached = cachePublicContent(listActive, "services-active");
 
 export function listAll() {
   return prisma.service.findMany({ orderBy: { order: "asc" } });
@@ -31,14 +35,23 @@ export type CreateServiceInput = {
   order?: number;
 };
 
-export function create(data: CreateServiceInput) {
-  return prisma.service.create({ data });
+export async function create(data: CreateServiceInput) {
+  const service = await prisma.service.create({ data });
+  invalidatePublicContent();
+  return service;
 }
 
-export function update(id: string, data: Partial<CreateServiceInput & { isActive: boolean }>) {
-  return prisma.service.update({ where: { id }, data });
+export async function update(
+  id: string,
+  data: Partial<CreateServiceInput & { isActive: boolean }>
+) {
+  const service = await prisma.service.update({ where: { id }, data });
+  invalidatePublicContent();
+  return service;
 }
 
-export function remove(id: string) {
-  return prisma.service.delete({ where: { id } });
+export async function remove(id: string) {
+  const service = await prisma.service.delete({ where: { id } });
+  invalidatePublicContent();
+  return service;
 }

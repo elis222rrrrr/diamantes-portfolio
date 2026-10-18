@@ -2,6 +2,11 @@ import type { MetadataRoute } from "next";
 import { SITE_URL as siteUrl } from "@/lib/seo/site";
 import { prisma } from "@/lib/prisma";
 
+// Rendered per request so newly published articles/products/projects show up
+// without a redeploy — prerendered at build time it was frozen to whatever the
+// DB held then (and failed the build outright when no DB was reachable).
+export const dynamic = "force-dynamic";
+
 /** Journal articles are the one part of this sitemap that's actually
  * DB-driven — every other route is static, but "automatic sitemap
  * generation" for the Journal specifically means new articles need to show
