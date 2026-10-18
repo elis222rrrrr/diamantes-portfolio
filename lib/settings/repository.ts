@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { cachePublicContent, invalidatePublicContent } from "@/lib/cache/public-content";
 
 const SINGLETON_ID = "singleton";
 
@@ -45,14 +46,16 @@ function toSettingsData(row: SettingsRow): SiteSettingsData {
  * places that read settings within one request (layout metadata, layout
  * JSON-LD, page components) share a single DB round-trip — same pattern
  * lib/auth/session.ts's getSession() already uses. */
-export const getSiteSettings = cache(async (): Promise<SiteSettingsData> => {
-  const row = await prisma.siteSettings.upsert({
-    where: { id: SINGLETON_ID },
-    create: { id: SINGLETON_ID },
-    update: {},
-  });
-  return toSettingsData(row);
-});
+export const getSiteSettings = cache(
+  cachePublicContent(async (): Promise<SiteSettingsData> => {
+    const row = await prisma.siteSettings.upsert({
+      where: { id: SINGLETON_ID },
+      create: { id: SINGLETON_ID },
+      update: {},
+    });
+    return toSettingsData(row);
+  }, "site-settings")
+);
 
 export async function updateSiteSettings(data: Partial<SiteSettingsData>): Promise<void> {
   const jsonData = data as Partial<SiteSettingsData> &
@@ -66,4 +69,5 @@ export async function updateSiteSettings(data: Partial<SiteSettingsData>): Promi
     create: { id: SINGLETON_ID, ...jsonData },
     update: jsonData,
   });
+  invalidatePublicContent();
 }

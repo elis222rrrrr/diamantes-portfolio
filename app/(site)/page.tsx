@@ -4,9 +4,9 @@ import StudioBand from "@/components/StudioBand";
 import ShopSection from "@/components/ShopSection";
 import ContactSection from "@/components/ContactSection";
 import { getSiteSettings } from "@/lib/settings/repository";
-import { listActive as listActiveServices } from "@/lib/services/repository";
-import { listAll as listAllPortfolio } from "@/lib/portfolio/repository";
-import { listActiveProducts } from "@/lib/shop/repository";
+import { listActiveCached as listActiveServices } from "@/lib/services/repository";
+import { listAllCached as listAllPortfolio } from "@/lib/portfolio/repository";
+import { listActiveProductsCached as listActiveProducts } from "@/lib/shop/repository";
 
 export default async function Home() {
   // Portfolio/shop lookups feed both the Hero's right-panel service card

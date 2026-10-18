@@ -2,6 +2,7 @@ import "server-only";
 
 import { Prisma, OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { cachePublicContent, invalidatePublicContent } from "@/lib/cache/public-content";
 
 // --- Products ---
 
@@ -22,6 +23,11 @@ export function listActiveProducts() {
     include: PRODUCT_INCLUDE_ACTIVE,
   });
 }
+
+/** listActiveProducts() for the homepage, cached — see
+ * lib/cache/public-content.ts. The shop pages and checkout keep reading
+ * live, so stock/price checks never act on a cached value. */
+export const listActiveProductsCached = cachePublicContent(listActiveProducts, "products-active");
 
 export function listAllProducts() {
   return prisma.product.findMany({
@@ -66,9 +72,9 @@ export type CreateProductInput = {
   variants?: ProductVariantInput[];
 };
 
-export function createProduct(data: CreateProductInput) {
+export async function createProduct(data: CreateProductInput) {
   const { images, variants, ...productData } = data;
-  return prisma.product.create({
+  const product = await prisma.product.create({
     data: {
       ...productData,
       images: images?.length
@@ -88,6 +94,8 @@ export function createProduct(data: CreateProductInput) {
         : undefined,
     },
   });
+  invalidatePublicContent();
+  return product;
 }
 
 export type UpdateProductInput = Partial<Omit<CreateProductInput, "images" | "variants">> & {
@@ -104,7 +112,7 @@ export type UpdateProductInput = Partial<Omit<CreateProductInput, "images" | "va
 export async function updateProduct(id: string, data: UpdateProductInput) {
   const { images, variants, ...productData } = data;
 
-  return prisma.$transaction(async (tx) => {
+  const product = await prisma.$transaction(async (tx) => {
     if (images) {
       await tx.productImage.deleteMany({ where: { productId: id } });
       if (images.length) {
@@ -151,6 +159,8 @@ export async function updateProduct(id: string, data: UpdateProductInput) {
 
     return tx.product.update({ where: { id }, data: productData });
   });
+  invalidatePublicContent();
+  return product;
 }
 
 export type DeleteProductResult = { ok: true } | { ok: false; reason: "has_orders" };
@@ -158,6 +168,7 @@ export type DeleteProductResult = { ok: true } | { ok: false; reason: "has_order
 export async function deleteProduct(id: string): Promise<DeleteProductResult> {
   try {
     await prisma.product.delete({ where: { id } });
+    invalidatePublicContent();
     return { ok: true };
   } catch (error) {
     // P2003: foreign key violation — OrderItem.productId is a deliberate
@@ -254,7 +265,7 @@ export async function markOrderPaid(
   stripePaymentIntentId: string | null,
   customer: ConfirmedCustomerDetails
 ): Promise<MarkPaidResult> {
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx): Promise<MarkPaidResult> => {
     const order = await tx.order.findUnique({ where: { id: orderId }, include: { items: true } });
     if (!order) throw new Error(`Order ${orderId} not found`);
     if (order.status !== OrderStatus.PENDING) {
@@ -315,6 +326,9 @@ export async function markOrderPaid(
     });
     return { ok: true as const };
   });
+  // Stock may have just changed (the homepage shop cards read it).
+  if (result.ok) invalidatePublicContent();
+  return result;
 }
 
 export function markOrderInProduction(orderId: string) {

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/prisma";
+import { cachePublicContent, invalidatePublicContent } from "@/lib/cache/public-content";
 import type { ToolId } from "@/lib/portfolio/tools";
 
 export function listActiveByGroup(group: "PERSONAL" | "COMMISSIONED") {
@@ -15,6 +16,9 @@ export function listAll() {
     orderBy: [{ group: "asc" }, { order: "asc" }],
   });
 }
+
+/** listAll() for the homepage, cached — see lib/cache/public-content.ts. */
+export const listAllCached = cachePublicContent(listAll, "portfolio-all");
 
 export function findById(id: string) {
   return prisma.portfolioProject.findUnique({ where: { id } });
@@ -43,17 +47,23 @@ export type CreatePortfolioProjectInput = {
   order?: number;
 };
 
-export function create(data: CreatePortfolioProjectInput) {
-  return prisma.portfolioProject.create({ data });
+export async function create(data: CreatePortfolioProjectInput) {
+  const project = await prisma.portfolioProject.create({ data });
+  invalidatePublicContent();
+  return project;
 }
 
-export function update(
+export async function update(
   id: string,
   data: Partial<CreatePortfolioProjectInput & { isActive: boolean }>
 ) {
-  return prisma.portfolioProject.update({ where: { id }, data });
+  const project = await prisma.portfolioProject.update({ where: { id }, data });
+  invalidatePublicContent();
+  return project;
 }
 
-export function remove(id: string) {
-  return prisma.portfolioProject.delete({ where: { id } });
+export async function remove(id: string) {
+  const project = await prisma.portfolioProject.delete({ where: { id } });
+  invalidatePublicContent();
+  return project;
 }
