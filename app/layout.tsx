@@ -8,6 +8,14 @@ import { safeJsonLd } from "@/lib/seo/json-ld";
 import { getSiteSettings } from "@/lib/settings/repository";
 import "./globals.css";
 
+// Every page is per-request anyway (the theme cookie read below), but without
+// this, `next build` still attempts to prerender each page first — and both
+// generateMetadata and this layout hit the DB (getSiteSettings) before the
+// cookies() call that would bail out of prerendering, so a build with no
+// reachable DB (CI, the Docker image build) fails. Same convention as the
+// DB-backed pages under (site).
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

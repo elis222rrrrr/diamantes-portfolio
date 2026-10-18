@@ -10,7 +10,20 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+# Placeholders only so modules that validate their env at import time
+# (lib/prisma.ts, lib/email/resend.ts, lib/shop/stripe.ts) load during
+# `next build` — nothing at build time talks to a real DB or API. Scoped to
+# this RUN, so they never reach the runner image; real values are supplied
+# at container start. Same dummies as the CI workflow's verify job.
+RUN DATABASE_URL="postgresql://user:password@localhost:5432/dummy" \
+    SITE_URL="https://diamantes3designs.com" \
+    RESEND_API_KEY="re_dummy" \
+    RESEND_FROM_EMAIL="dummy@example.com" \
+    CLOUDINARY_CLOUD_NAME="dummy" \
+    CLOUDINARY_API_KEY="dummy" \
+    CLOUDINARY_API_SECRET="dummy" \
+    STRIPE_SECRET_KEY="sk_test_dummy" \
+    npm run build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
